@@ -187,7 +187,7 @@
             this.TransferToSavingsButton.TabIndex = 12;
             this.TransferToSavingsButton.Text = "TRANSFER TO SAVINGS";
             this.TransferToSavingsButton.UseVisualStyleBackColor = true;
-            this.TransferToSavingsButton.Click += new System.EventHandler(this.Trasnfer_Click_1);
+            this.TransferToSavingsButton.Click += new System.EventHandler(this.TransferToSavingsButton_Click);
             // 
             // TransferToSavingsBox
             // 

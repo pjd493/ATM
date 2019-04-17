@@ -8,8 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace ATM
 {
+
 
     public partial class ChequingForm : Form
     {
@@ -100,14 +102,26 @@ namespace ATM
         {
            
             decimal chequingFunds = SqlHelper.CheckChequingfunds();
-
-            Chequing UpdatedChequingAccount = new Chequing();
-
-            UpdatedChequingAccount.customerID = Customer.customerID;
-            UpdatedChequingAccount.accountTotal = chequingFunds + (Convert.ToDecimal(DepositEnterBox.Text));
-            SqlHelper.UpdateChequing(UpdatedChequingAccount);
-            BalanceRemainingDisplayBox.Items.Clear();
+            decimal DepositAmount;
+            bool isNumeric = decimal.TryParse(DepositEnterBox.Text, out DepositAmount);
+            if (isNumeric == false)
+            {
+                MessageBox.Show("Please Enter a Valid Number");
+                DepositEnterBox.Clear();
+            }
+            else
+            {
+                Chequing UpdatedChequingAccount = new Chequing();
+                UpdatedChequingAccount.customerID = Customer.customerID;
+                UpdatedChequingAccount.accountTotal = chequingFunds + DepositAmount;
+                SqlHelper.UpdateChequing(UpdatedChequingAccount);
+                BalanceRemainingDisplayBox.Items.Clear();
+                DepositEnterBox.Clear();
+            }
             
+            
+
+
         }
         /// <summary>
         /// Takes User inputed withdraw and updates SQL Datatable.
@@ -118,25 +132,33 @@ namespace ATM
         {
             decimal chequingFunds = SqlHelper.CheckChequingfunds();
             Chequing UpdatedChequingAccount = new Chequing();
+            decimal withdrawAmount;
+            bool isNumeric = decimal.TryParse(WithdrawEnterBox.Text, out withdrawAmount);
+            if (isNumeric == false)
+            {
+                MessageBox.Show("Please Enter a Valid Number");
+                WithdrawEnterBox.Clear();
+            }
 
             UpdatedChequingAccount.customerID = Customer.customerID;
-            UpdatedChequingAccount.accountTotal = chequingFunds - (Convert.ToDecimal(WithdrawEnterBox.Text));
+            UpdatedChequingAccount.accountTotal = chequingFunds - withdrawAmount;
             if (UpdatedChequingAccount.accountTotal < 0)
             {
                 decimal savingsFunds = SqlHelper.CheckSavingsfunds();
                 Savings CustomerSavings = new Savings();
-
                 CustomerSavings.customerID = Customer.customerID;
-                CustomerSavings.accountTotal = chequingFunds + UpdatedChequingAccount.accountTotal;
+                CustomerSavings.accountTotal = chequingFunds + withdrawAmount;
                 UpdatedChequingAccount.accountTotal = 0;
                 SqlHelper.UpdateSavings(CustomerSavings);
                 BalanceRemainingDisplayBox.Items.Clear();
                 SqlHelper.UpdateChequing(UpdatedChequingAccount);
+                WithdrawEnterBox.Clear();
             }
             else
             {
                 SqlHelper.UpdateChequing(UpdatedChequingAccount);
                 BalanceRemainingDisplayBox.Items.Clear();
+                WithdrawEnterBox.Clear();
             }
         }
 
@@ -145,7 +167,7 @@ namespace ATM
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Trasnfer_Click_1(object sender, EventArgs e)
+        private void TransferToSavingsButton_Click(object sender, EventArgs e)
         {
             BalanceRemainingLabel.Text = "Enter Transfer Amount";
             BalanceRemainingLabel.Show();
@@ -164,26 +186,35 @@ namespace ATM
         /// <param name="e"></param>
         private void Transferbutton_Click(object sender, EventArgs e)
         {
-                decimal currentSavings = SqlHelper.CheckSavingsfunds();
-                decimal currentChequing = SqlHelper.CheckChequingfunds();
-                Chequing UpdatedChequingAccount = new Chequing();
-                Savings UpdatedSavingsAccount = new Savings();
+            decimal currentSavings = SqlHelper.CheckSavingsfunds();
+            decimal currentChequing = SqlHelper.CheckChequingfunds();
+            Chequing UpdatedChequingAccount = new Chequing();
+            Savings UpdatedSavingsAccount = new Savings();
+            decimal transferAmount;
+
+            bool isNumeric = decimal.TryParse(TransferToSavingsBox.Text, out transferAmount);
+            if (isNumeric == false)
+            {
+                MessageBox.Show("Please Enter a Valid Number");
+                TransferToSavingsBox.Clear();
+            }
 
             UpdatedChequingAccount.customerID = Customer.customerID;
             UpdatedSavingsAccount.customerID = Customer.customerID;
-            UpdatedSavingsAccount.accountTotal = currentSavings + (Convert.ToDecimal(TransferToSavingsBox.Text));
-            UpdatedChequingAccount.accountTotal = currentChequing - (Convert.ToDecimal(TransferToSavingsBox.Text));
+            UpdatedSavingsAccount.accountTotal = currentSavings + transferAmount;
+            UpdatedChequingAccount.accountTotal = currentChequing - transferAmount;
             if (UpdatedChequingAccount.accountTotal < 0)
             {
                 decimal savingsFunds = SqlHelper.CheckSavingsfunds();
                 Savings CustomerSavings = new Savings();
 
                 CustomerSavings.customerID = Customer.customerID;
-                CustomerSavings.accountTotal = savingsFunds + UpdatedChequingAccount.accountTotal + currentChequing;
+                CustomerSavings.accountTotal = savingsFunds + currentChequing;
                 UpdatedChequingAccount.accountTotal = 0;
                 SqlHelper.UpdateSavings(CustomerSavings);
                 BalanceRemainingDisplayBox.Items.Clear();
                 SqlHelper.UpdateChequing(UpdatedChequingAccount);
+                TransferToSavingsBox.Clear();
             }
             else
             {
@@ -191,6 +222,7 @@ namespace ATM
                 SqlHelper.UpdateSavings(UpdatedSavingsAccount);
                 SqlHelper.UpdateChequing(UpdatedChequingAccount);
                 BalanceRemainingDisplayBox.Items.Clear();
+                TransferToSavingsBox.Clear();
             }
 
             
@@ -207,5 +239,7 @@ namespace ATM
             SavingsAccount.Show();
             SavingsAccount.Customer = Customer;
         }
+
     }
+
 }

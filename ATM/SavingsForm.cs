@@ -104,11 +104,22 @@ namespace ATM
 
             decimal currentFunds = SqlHelper.CheckSavingsfunds();
             Savings UpdatedAccount = new Savings();
-
+            decimal depositAmount;
+            bool isNumeric = decimal.TryParse(DepositEnterBox.Text, out depositAmount);
+            if (isNumeric == false)
+            {
+                MessageBox.Show("Please Enter a Valid Number");
+                DepositEnterBox.Clear();
+            }
+            else
+            { 
             UpdatedAccount.customerID = Customer.customerID;
             UpdatedAccount.accountTotal = currentFunds + (Convert.ToDecimal(DepositEnterBox.Text));
             SqlHelper.UpdateSavings(UpdatedAccount);
             BalanceRemainingDisplayBox.Items.Clear();
+            DepositEnterBox.Clear();
+            }
+
 
         }
         /// <summary>
@@ -120,12 +131,22 @@ namespace ATM
         {
             decimal currentFunds = SqlHelper.CheckSavingsfunds();
             Savings UpdatedAccount = new Savings();
-
-            UpdatedAccount.customerID = Customer.customerID;
-            UpdatedAccount.accountTotal = currentFunds - (Convert.ToDecimal(WithdrawEnterBox.Text));
-            SqlHelper.UpdateSavings(UpdatedAccount);
-            BalanceRemainingDisplayBox.Items.Clear();
-
+            decimal withdrawAmount;
+            bool isNumeric = decimal.TryParse(WithdrawEnterBox.Text, out withdrawAmount);
+            if (isNumeric == false)
+            {
+                MessageBox.Show("Please Enter a Valid Number");
+                WithdrawEnterBox.Clear();
+            }
+            else
+            {
+                UpdatedAccount.customerID = Customer.customerID;
+                UpdatedAccount.accountTotal = currentFunds - (Convert.ToDecimal(WithdrawEnterBox.Text));
+                SqlHelper.UpdateSavings(UpdatedAccount);
+                BalanceRemainingDisplayBox.Items.Clear();
+                WithdrawEnterBox.Clear();
+            }
+            
         }
 
         
@@ -142,6 +163,14 @@ namespace ATM
             decimal currentSavings = SqlHelper.CheckSavingsfunds();
             Savings UpdatedSavingsAccount = new Savings();
             Chequing UpdatedChequingAccount = new Chequing();
+            decimal transferAmount;
+
+            bool isNumeric = decimal.TryParse(TransferToChequingBox.Text, out transferAmount);
+            if (isNumeric == false)
+            {
+                MessageBox.Show("Please Enter a Valid Number");
+                TransferToChequingBox.Clear();
+            }
 
             UpdatedSavingsAccount.customerID = Customer.customerID;
             UpdatedChequingAccount.customerID = Customer.customerID;
@@ -152,12 +181,14 @@ namespace ATM
                 MessageBox.Show("You have Insufficent funds to make this transaction");
                 UpdatedSavingsAccount.accountTotal = currentSavings;
                 UpdatedChequingAccount.accountTotal = currentChequing;
+                TransferToChequingBox.Clear();
             }
             else
             {
                 SqlHelper.UpdateChequing(UpdatedChequingAccount);
                 SqlHelper.UpdateSavings(UpdatedSavingsAccount);
                 BalanceRemainingDisplayBox.Items.Clear();
+                TransferToChequingBox.Clear();
             }
         }
         /// <summary>
@@ -188,6 +219,11 @@ namespace ATM
             EnterDepositButton.Hide();
             TransferToChequingBox.Show();
             EnterTransferButton.Show();
+        }
+
+        private void SavingsForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 
